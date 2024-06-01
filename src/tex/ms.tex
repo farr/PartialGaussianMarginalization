@@ -1,56 +1,123 @@
 % Define document class
-\documentclass[twocolumn]{aastex631}
+\documentclass[modern]{aastex631}
 \usepackage{showyourwork}
+
+\newcommand{\dd}{\mathrm{d}}
 
 % Begin!
 \begin{document}
 
 % Title
-\title{An open source scientific article}
+\title{Gaussian Likelihoods with Gaussian Populations for Subsets of Parameters}
 
 % Author list
-\author{@farr}
+\author{Will M. Farr}
+\email{wfarr@flatironinstitute.org}
+\email{will.farr@stonybrook.edu}
+\affiliation{Department of Physics and Astronomy, Stony Brook University, Stony Brook, NY 11794, USA}
+\affiliation{Center for Computational Astrophysics, Flatiron Institute, New York, NY 10010, USA}
 
 % Abstract with filler text
 \begin{abstract}
-    Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
-    Ut purus elit, vestibulum ut, placerat ac, adipiscing vitae, felis.
-    Curabitur dictum gravida mauris, consectetuer id, vulputate a, magna.
-    Donec vehicula augue eu neque, morbi tristique senectus et netus et.
-    Mauris ut leo, cras viverra metus rhoncus sem, nulla et lectus vestibulum.
-    Phasellus eu tellus sit amet tortor gravida placerat.
-    Integer sapien est, iaculis in, pretium quis, viverra ac, nunc.
-    Praesent eget sem vel leo ultrices bibendum.
-    Aenean faucibus, morbi dolor nulla, malesuada eu, pulvinar at, mollis ac.
-    Curabitur auctor semper nulla donec varius orci eget risus.
-    Duis nibh mi, congue eu, accumsan eleifend, sagittis quis, diam.
-    Duis eget orci sit amet orci dignissim rutrum.
+    Gaussian likelihoods (or mixtures of Gaussian likelihoods) with subsets of
+    parameters with a Gaussian population: handled.
 \end{abstract}
 
 % Main body with filler text
 \section{Introduction}
 \label{sec:intro}
 
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
-Ut purus elit, vestibulum ut, placerat ac, adipiscing vitae, felis.
-Curabitur dictum gravida mauris, consectetuer id, vulputate a, magna.
-Donec vehicula augue eu neque, morbi tristique senectus et netus et.
-Mauris ut leo, cras viverra metus rhoncus sem, nulla et lectus vestibulum.
-Phasellus eu tellus sit amet tortor gravida placerat.
-Integer sapien est, iaculis in, pretium quis, viverra ac, nunc.
-Praesent eget sem vel leo ultrices bibendum.
-Aenean faucibus, morbi dolor nulla, malesuada eu, pulvinar at, mollis ac.
-Curabitur auctor semper nulla donec varius orci eget risus.
-Duis nibh mi, congue eu, accumsan eleifend, sagittis quis, diam.
-Duis eget orci sit amet orci dignissim rutrum.
+\section{Method}
+\label{sec:method}
 
-Nam dui ligula, fringilla a, euismod sodales, sollici- tudin vel, wisi.
-Morbi auctor lorem non justo, nam lacus libero, pretium at, lobortis vitae.
-Donec aliquet, tortor sed accumsan bibendum, erat ligula aliquet magna.
-Morbi ac orci et nisl hendrerit mollis, suspendisse ut massa, cras nec ante.
-Pellentesque a nulla cum sociis natoque penatibus et magnis dis parturient.
-Aliquam tincidunt urna, nulla ullamcorper vestibulum turpis.
-Pellentesque cursus luctus mauris \citep{Luger2021}.
+Let us suppose we are performing a population analysis with observations of
+parameters $\theta$ over a population of objects.  Let us have a Gaussian
+likelihood for $\theta$ (extensions to a mixture of Gaussians, such as a
+Gaussian mixture model fitted to samples drawn from a more complex likelihood,
+or a Gaussian KDE approximation to such a likelihood, are straightforward), and
+assume a Gaussian population model for a subset of the parameters $\theta$,
+which we will denote by a ``tilde'' as in $\tilde{\theta}$, and an arbitrary
+population model for the other parameters, which we will denote by a ``hat'' as
+in $\hat{\theta}$.  Write the product of likelihood and population for an
+observation as 
+\begin{equation}
+    \label{eq:likelihood-population}
+    N\left( x \mid \theta, C \right) N\left( \theta \mid \mu, \Lambda \right) p\left( \hat{\theta} \mid \lambda \right);
+\end{equation}
+where $x$ is the peak of the Gaussian likelihood with covariance matrix $C$; $\mu$ is given by 
+\begin{equation}
+    \mu = \left( \tilde{\mu}, 0, \ldots \right),
+\end{equation} 
+with $\tilde{\mu}$ the mean of the Gaussian components of the population; and
+$\Lambda$ given by 
+\begin{equation}
+    \Lambda = \begin{pmatrix}
+        \tilde{\Lambda} &  &  & 0 \\
+          & \infty &  &  \\ 
+          &   & \infty &  \\
+        0 &   &        & \ddots 
+    \end{pmatrix},
+\end{equation}
+with $\tilde{\Lambda}$ the covariance matrix for the Gaussian components of the
+population; and $p\left( \hat{\theta} \mid \lambda \right)$ the distribution for
+the non-Gaussian components of the population, parameterized by parameters
+$\lambda$.  The ``infinite'' components of the Gaussian covariance should be
+interpreted as the limit of a very large variance, which is equivalent to a
+``flat'' distribution for these components in this term in the population; that
+is, in the limit, the population for these parameters should correspond to
+$p\left( \hat{\theta} \mid \lambda \right)$.  The infinite normalization
+constants that these ``flat'' distributions involve will be seen to cancel in
+the factorization that follows.
+
+\citet{Hogg2020} shows that the product in Eq.\ \eqref{eq:likelihood-population}
+can be factored into 
+\begin{equation}
+    N\left( \theta \mid a, A \right) N\left( x \mid b, B \right) p\left( \theta \mid \lambda \right),
+\end{equation}
+with 
+\begin{eqnarray}
+    A^{-1} & = & \Lambda^{-1} + C^{-1} \\
+    a & = & A \left( \Lambda^{-1} \mu + C^{-1} x \right) \\ 
+    B & = & C + \Lambda \\
+    b & = & \mu.
+\end{eqnarray}
+Note that $\Lambda^{-1}$ contains zeros on its ``hat'' (non-Gaussian) diagonal;
+similarly, $B^{-1}$ will also have zeros on its ``hat'' diagonal components.
+The only part of this formula that depends on $\tilde{\theta}$ (the Gaussian
+population components) is the ``tilde'' components of the first Gaussian term;
+we can marginalize these analytically, resulting in 
+\begin{equation}
+    \int \dd \tilde{\theta} \, N\left( \theta \mid a, A \right) N\left( x \mid b, B \right) p\left( \theta \mid \lambda \right) = N\left( \hat{\theta} \mid \hat{a}, \hat{A} \right) N\left( x \mid b, B \right) p\left( \hat{\theta} \mid \lambda \right),
+\end{equation}
+where $\hat{a}$ is the components of $a$ corresponding to the non-Gaussian
+population parameters; similarly, $\hat{A}$ is the square sub-matrix of $A$
+corresponding to these parameters.
+
+The ``hat'' (non-Gaussian) components of the diagonal of $B$ have infinite
+variance; canceling against the corresponding componets of $\Lambda$ from Eq.\
+\eqref{eq:likelihood-population} yields the finite part of the
+likelihood-population product, 
+\begin{equation}
+    N\left( \hat{\theta} \mid \hat{a}, \hat{A} \right) N\left( \tilde{x} \mid \tilde{b}, \tilde{B} \right) p\left( \hat{\theta} \mid \lambda \right).
+\end{equation}
+We see that the population for the non-Gaussian parameters has been modified by
+the Gaussian term $N\left( \hat{\theta} \mid \hat{a}, \hat{A} \right)$.  Because
+$a$ is a weighted mixture of the mean of the likelihood $x$ and the mean of the
+population $\mu$ and the ``hat'' components of $A$ are extracted \emph{after}
+inversion of the full precision matrix $A^{-1}$ (which, itself, is a sum of the
+prior precision $\Lambda^{-1}$ and the measurement precision $C^{-1}$), the
+effect of this term is to induce a weighting of $\hat{\theta}$ toward the
+\emph{Gaussian prediction} of these non-Gaussian components after taking account
+of the full likelihood and the influence of the Gaussian population.  This
+weighting functions as a likelihood that is combined with the non-Gaussian
+population $p\left( \hat{\theta} \mid \lambda \right)$ to generate inferences.
+The Gaussian involving $x$ behaves as an ``evidence'' weight, resulting from
+marginalizing out the Gaussian population components, $\tilde{\theta}$.  
+
+\section{Example}
+\label{sec:example}
+
+An example 
 
 \bibliography{bib}
 
