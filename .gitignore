@@ -2,6 +2,9 @@
 **/.snakemake
 **/.showyourwork*
 
+# Julia Manifest
+Manifest.toml
+
 # Showyourwork output files
 /*.pdf
 report.html
