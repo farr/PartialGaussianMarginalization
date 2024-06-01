@@ -1,0 +1,6 @@
+{  
+    "latex-workshop.latex.external.build.command": "/Users/wfarr/miniconda3/envs/showyourwork/bin/python",
+    "latex-workshop.latex.external.build.args": ["-m", "showyourwork", "build"],
+    "latex-workshop.latex.outDir": "%WORKSPACE_FOLDER%",
+    "latex-workshop.view.pdf.viewer": "tab"
+}
