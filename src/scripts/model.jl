@@ -126,6 +126,20 @@ function translated_gmm(gmm, mu, Lambda)
     gaussians
 end
 
+"""
+    translated_kde(kde, mu, Lambda)
+
+Given a KDE representation of a likelihood function and the mean and covariance
+of a Gaussian population model for a subset of the parameters, return `(log_wts,
+samples)`, weights and samples over the other parameters representing the
+likelihood marginalized over the Gaussian population.
+
+The Gaussian components of the population are assumed to be parameters
+`1:n_gaussian` out of `1:n` total parameters represented in the KDE.  The
+returned log-weight array will have shape `(n_pts,)`, the same length as the
+number of points in the KDE, and the samples returned will have shape
+`(n-n_gaussian, n_pts)`.
+"""
 function translated_kde(kde, mu, Lambda)
     Lc = cholesky(Hermitian(Lambda))
     Cc = kde.chol_bw
@@ -153,10 +167,10 @@ function translated_kde(kde, mu, Lambda)
 
     mu_pred = cat(Lc \ mu, zeros(n-ng), dims=1)
 
-    log_wts = [logpdf(marg_dist, kde.pts[1:ng,j]) for j in 1:size(kde.pts, 2)]
-    pts = [(Ainvc \ (mu_pred + Cc \ kde.pts[:,j]))[ng+1:end] for j in 1:size(kde.pts,2)]
+    log_wts = [logpdf(marg_dist, kde.pts[1:ng,j]) for j in axes(kde.pts, 2)]
+    pts = [(Ainvc \ (mu_pred + Cc \ kde.pts[:,j]))[ng+1:end] for j in axes(kde.pts,2)]
 
-    return (log_wts, pts)
+    return (log_wts, [pts[j][i] for i in 1:n-ng, j in axes(kde.pts,2)])
 end
 
 dp, m1, q, chi_eff = draw_population()
@@ -173,8 +187,7 @@ log_wts, pts = translated_kde(k, mu, Lambda)
 wts = exp.(log_wts .- maximum(log_wts))
 wts = wts ./ sum(wts)
 inds = sample(1:length(wts), Weights(wts), 1024)
-samples = pts[inds]
-samples = [samples[j][i] for i in eachindex(samples[1]), j in eachindex(samples)]
+samples = pts[:,inds]
 
 c1 = Makie.wong_colors(0.5)[1]
 c2 = Makie.wong_colors(0.5)[2]
