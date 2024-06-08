@@ -81,11 +81,11 @@ with
     B & = & C + \Lambda \\
     b & = & \mu.
 \end{eqnarray}
-Note that $\Lambda^{-1}$ contains zeros on its ``hat'' (non-Gaussian) diagonal;
-similarly, $B^{-1}$ will also have zeros on its ``hat'' diagonal components.
-The only part of this formula that depends on $\tilde{\theta}$ (the Gaussian
-population components) is the ``tilde'' components of the first Gaussian term;
-we can marginalize these analytically, resulting in 
+Note that $\Lambda^{-1}$ contains zeros on its ``hat'' (non-Gaussian) diagonal
+components; similarly, $B^{-1}$ will also have zeros on its ``hat'' diagonal
+components. The only part of this formula that depends on $\tilde{\theta}$ (the
+Gaussian population components) is the ``tilde'' components of the first
+Gaussian term; we can marginalize these analytically, resulting in 
 \begin{equation}
     \int \dd \tilde{\theta} \, N\left( \theta \mid a, A \right) N\left( x \mid b, B \right) p\left( \theta \mid \lambda \right) = N\left( \hat{\theta} \mid \hat{a}, \hat{A} \right) N\left( x \mid b, B \right) p\left( \hat{\theta} \mid \lambda \right),
 \end{equation}
@@ -94,10 +94,11 @@ population parameters; similarly, $\hat{A}$ is the square sub-matrix of $A$
 corresponding to these parameters.
 
 The ``hat'' (non-Gaussian) components of the diagonal of $B$ have infinite
-variance; canceling against the corresponding componets of $\Lambda$ from Eq.\
+variance; canceling against the corresponding components of $\Lambda$ from Eq.\
 \eqref{eq:likelihood-population} yields the finite part of the
 likelihood-population product, 
 \begin{equation}
+    \label{eq:marginalized-likelihood}
     N\left( \hat{\theta} \mid \hat{a}, \hat{A} \right) N\left( \tilde{x} \mid \tilde{b}, \tilde{B} \right) p\left( \hat{\theta} \mid \lambda \right).
 \end{equation}
 We see that the population for the non-Gaussian parameters has been modified by
@@ -113,6 +114,36 @@ weighting functions as a likelihood that is combined with the non-Gaussian
 population $p\left( \hat{\theta} \mid \lambda \right)$ to generate inferences.
 The Gaussian involving $x$ behaves as an ``evidence'' weight, resulting from
 marginalizing out the Gaussian population components, $\tilde{\theta}$.  
+
+An exact analysis must proceed at this point by sampling over the non-Gaussian
+parameters, $\hat{\theta}$ for each event, as well as the population-level
+parameters $\lambda$ shared by all events using the event-level (marginal)
+likelihood in Eq.\ \eqref{eq:marginalized-likelihood}.  However, it is often the
+case that the Gaussian prediction for the non-Gaussian parameters,
+$\hat{\theta}$, is constrained by the correlations in the likelihood function
+and the Gaussian population that has been marginalized out (i.e.\ that the
+covariance matrix $\hat{A}$ has eigenvalues that are much smaller than
+the---squared---scales in the population distribution $p\left( \hat{\theta} \mid
+\lambda \right)$).  In this case it is reasonable to approximate the Gaussian
+distribution for $\hat{\theta}$ as a delta-function, and further marginalize
+over all parameters, resulting in the approximate (fully) marginalized
+likelihood
+\begin{equation}
+    \label{eq:approximate-marginalized-likelihood}
+    N\left( \tilde{x} \mid \tilde{b}, \tilde{B} \right) p\left( \hat{a} \mid \lambda \right).
+\end{equation}
+
+If the original likelihood was a sum of Gaussian terms (as in a KDE or GMM
+approximation to a likelihood function), then each term should be marginalized
+partially as in Eq.\ \eqref{eq:marginalized-likelihood} or fully, but
+approximately, as in Eq.\ \eqref{eq:approximate-marginalized-likelihood} and the
+results summed.  In the latter case, the evaluation of the fully marginalized
+likelihood will use the same code paths as in a simple Monte-Carlo
+marginalization of the likelihood based on the samples used to construct the KDE
+or GMM, but with the Gaussian-population components of the samples subjected to
+a ``modified'' Gaussian population with mean $b$ and covariance $B$, and the
+non-Gaussian components of the samples ``shifted'' in location to $\hat{a}$, the
+``Gaussian prediction'' for their values.
 
 \section{Example}
 \label{sec:example}
