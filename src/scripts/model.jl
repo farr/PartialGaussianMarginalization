@@ -152,15 +152,12 @@ function translated_kde(kde, mu, Lambda)
     Linv = Lc \ I
     Linv_full = cat(cat(Linv, zeros(n-ng, ng), dims=1), zeros(n, n-ng), dims=2)
 
-    Lambda_full = cat(cat(Lambda, zeros(n-ng, ng), dims=1), zeros(n, n-ng), dims=2)
-
     Cinv = Cc \ I
 
     Ainv = Linv_full + Cinv
     Ainvc = cholesky(Hermitian(Ainv))
 
-    B = Lambda_full + C
-    B = B[1:ng,1:ng]
+    B = Lambda .+ C[1:ng,1:ng]
     b = mu
 
     marg_dist = MultivariateNormal(b, B)
